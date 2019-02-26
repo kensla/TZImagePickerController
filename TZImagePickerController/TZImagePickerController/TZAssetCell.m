@@ -16,6 +16,7 @@
 @interface TZAssetCell ()
 @property (weak, nonatomic) UIImageView *imageView;       // The photo / 照片
 @property (weak, nonatomic) UIImageView *selectImageView;
+@property (weak, nonatomic) UIImageView *selectSnapchatView;
 @property (weak, nonatomic) UILabel *indexLabel;
 @property (weak, nonatomic) UIView *bottomView;
 @property (weak, nonatomic) UILabel *timeLength;
@@ -56,7 +57,9 @@
     }
     self.imageRequestID = imageRequestID;
     self.selectPhotoButton.selected = model.isSelected;
+    self.selectSnapchatButton.selected = model.isSelectedSnapchat;
     self.selectImageView.image = self.selectPhotoButton.isSelected ? self.photoSelImage : self.photoDefImage;
+    self.selectSnapchatView.image = self.selectSnapchatButton.isSelected ? self.snapchatSelImage : self.snapchatDefImage;
     self.indexLabel.hidden = !self.selectPhotoButton.isSelected;
     
     self.type = (NSInteger)model.type;
@@ -95,6 +98,12 @@
     if (!self.selectImageView.hidden) {
         self.selectImageView.hidden = !showSelectBtn || !selectable;
     }
+}
+
+-(void)setShowSnapchatBtn:(BOOL)showSnapchatBtn {
+    _showSnapchatBtn = showSnapchatBtn;
+    self.selectSnapchatView.hidden = !_showSnapchatBtn;
+    self.selectSnapchatButton.hidden = !_showSnapchatBtn;
 }
 
 - (void)setType:(TZAssetCellType)type {
@@ -146,6 +155,13 @@
     } else { // 取消选中，取消大图的获取
         [self cancelBigImageRequest];
     }
+}
+
+- (void)selectSnapchatButtonClick:(UIButton *)sender {
+    if (self.didSelectSnapchatBlock) {
+        self.didSelectSnapchatBlock(sender.isSelected);
+    }
+    self.selectSnapchatView.image = sender.isSelected ? self.snapchatSelImage : self.snapchatDefImage;
 }
 
 /// 只在单选状态且allowPreview为NO时会有该事件
@@ -212,12 +228,27 @@
 
 #pragma mark - Lazy load
 
+-(UIButton *)selectSnapchatButton {
+    if (_selectSnapchatButton == nil) {
+        UIButton *selectSnapchatButton = [[UIButton alloc] init];
+        [selectSnapchatButton addTarget:self action:@selector(selectSnapchatButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+        [self.contentView addSubview:selectSnapchatButton];
+        _selectSnapchatButton = selectSnapchatButton;
+//        _selectSnapchatButton.layer.borderWidth = 1;
+//        _selectSnapchatButton.layer.borderColor = [UIColor redColor].CGColor;
+    }
+    return _selectSnapchatButton;
+}
+
+
 - (UIButton *)selectPhotoButton {
     if (_selectPhotoButton == nil) {
         UIButton *selectPhotoButton = [[UIButton alloc] init];
         [selectPhotoButton addTarget:self action:@selector(selectPhotoButtonClick:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:selectPhotoButton];
         _selectPhotoButton = selectPhotoButton;
+//        _selectPhotoButton.layer.borderWidth = 1;
+//        _selectPhotoButton.layer.borderColor = [UIColor redColor].CGColor;
     }
     return _selectPhotoButton;
 }
@@ -245,6 +276,17 @@
         _selectImageView = selectImageView;
     }
     return _selectImageView;
+}
+
+-(UIImageView *)selectSnapchatView {
+    if (_selectSnapchatView == nil) {
+        UIImageView *selectSnapchatView = [[UIImageView alloc] init];
+        selectSnapchatView.contentMode = UIViewContentModeCenter;
+        selectSnapchatView.clipsToBounds = YES;
+        [self.contentView addSubview:selectSnapchatView];
+        _selectSnapchatView = selectSnapchatView;
+    }
+    return _selectSnapchatView;
 }
 
 - (UIView *)bottomView {
@@ -318,7 +360,13 @@
     } else {
         _selectPhotoButton.frame = self.bounds;
     }
+    
+    _selectSnapchatButton.frame = CGRectMake(self.tz_width - 44, self.tz_height - 44, 44, 44);
+    
+    
     _selectImageView.frame = CGRectMake(self.tz_width - 27, 3, 24, 24);
+    _selectSnapchatView.frame = CGRectMake(self.tz_width - 27, self.tz_height - 24 - 3, 24, 24);
+    
     if (_selectImageView.image.size.width <= 27) {
         _selectImageView.contentMode = UIViewContentModeCenter;
     } else {
@@ -341,6 +389,7 @@
     [self.contentView bringSubviewToFront:_bottomView];
     [self.contentView bringSubviewToFront:_cannotSelectLayerButton];
     [self.contentView bringSubviewToFront:_selectPhotoButton];
+    [self.contentView bringSubviewToFront:_selectSnapchatButton];
     [self.contentView bringSubviewToFront:_selectImageView];
     [self.contentView bringSubviewToFront:_indexLabel];
     
@@ -441,6 +490,7 @@
         selectedCountButton.titleLabel.font = [UIFont systemFontOfSize:15];
         [self.contentView addSubview:selectedCountButton];
         _selectedCountButton = selectedCountButton;
+
     }
     return _selectedCountButton;
 }

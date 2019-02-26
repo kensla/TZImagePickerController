@@ -69,6 +69,9 @@
 /// Default is YES, if set NO, the original photo button will hide. user can't picking original photo.
 /// 默认为YES，如果设置为NO,原图按钮将隐藏，用户不能选择发送原图
 @property (nonatomic, assign) BOOL allowPickingOriginalPhoto;
+/// 是否显示阅后即焚按钮
+@property (nonatomic, assign) BOOL showSnapchatButton;
+
 
 /// Default is YES, if set NO, user can't picking video.
 /// 默认为YES，如果设置为NO,用户将不能选择视频
@@ -158,6 +161,7 @@
 /// Single selection mode, valid when maxImagesCount = 1
 /// 单选模式,maxImagesCount为1时才生效
 @property (nonatomic, assign) BOOL showSelectBtn;        ///< 在单选模式下，照片列表页中，显示选择按钮,默认为NO
+@property (nonatomic, assign) BOOL showSnapchatBtn;      ///< 显示阅后即焚按钮
 @property (nonatomic, assign) BOOL allowCrop;            ///< 允许裁剪,默认为YES，showSelectBtn为NO才生效
 @property (nonatomic, assign) CGRect cropRect;           ///< 裁剪框的尺寸
 @property (nonatomic, assign) CGRect cropRectPortrait;   ///< 裁剪框的尺寸(竖屏)
@@ -206,6 +210,10 @@
 @property (nonatomic, strong) UIImage *photoPreviewOriginDefImage;
 @property (nonatomic, strong) UIImage *photoNumberIconImage;
 
+@property (nonatomic, strong) UIImage *snapchatSelImage;
+@property (nonatomic, strong) UIImage *snapchatDefImage;
+
+
 #pragma mark -
 /// Appearance / 外观颜色 + 按钮文字
 @property (nonatomic, strong) UIColor *oKButtonTitleColorNormal;
@@ -220,6 +228,7 @@
 @property (nonatomic, copy) NSString *cancelBtnTitleStr;
 @property (nonatomic, copy) NSString *previewBtnTitleStr;
 @property (nonatomic, copy) NSString *fullImageBtnTitleStr;
+@property (nonatomic, copy) NSString *snapchatBtnTitleStr;
 @property (nonatomic, copy) NSString *settingBtnTitleStr;
 @property (nonatomic, copy) NSString *processHintStr;
 

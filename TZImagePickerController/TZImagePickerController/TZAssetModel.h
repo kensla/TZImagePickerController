@@ -21,6 +21,7 @@ typedef enum : NSUInteger {
 @interface TZAssetModel : NSObject
 
 @property (nonatomic, strong) PHAsset *asset;
+@property (nonatomic, assign) BOOL isSelectedSnapchat;
 @property (nonatomic, assign) BOOL isSelected;      ///< The select status of a photo, default is No
 @property (nonatomic, assign) TZAssetModelMediaType type;
 @property (nonatomic, copy) NSString *timeLength;

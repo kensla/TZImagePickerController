@@ -19,11 +19,14 @@ typedef enum : NSUInteger {
 
 @class TZAssetModel;
 @interface TZAssetCell : UICollectionViewCell
+// 阅后即焚
+@property (weak, nonatomic) UIButton *selectSnapchatButton;
 @property (weak, nonatomic) UIButton *selectPhotoButton;
 @property (weak, nonatomic) UIButton *cannotSelectLayerButton;
 @property (nonatomic, strong) TZAssetModel *model;
 @property (assign, nonatomic) NSInteger index;
 @property (nonatomic, copy) void (^didSelectPhotoBlock)(BOOL);
+@property (nonatomic, copy) void (^didSelectSnapchatBlock)(BOOL);
 @property (nonatomic, assign) TZAssetCellType type;
 @property (nonatomic, assign) BOOL allowPickingGif;
 @property (nonatomic, assign) BOOL allowPickingMultipleVideo;
@@ -33,7 +36,11 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong) UIImage *photoSelImage;
 @property (nonatomic, strong) UIImage *photoDefImage;
 
+@property (nonatomic, strong) UIImage *snapchatSelImage;
+@property (nonatomic, strong) UIImage *snapchatDefImage;
+
 @property (nonatomic, assign) BOOL showSelectBtn;
+@property (nonatomic, assign) BOOL showSnapchatBtn;
 @property (assign, nonatomic) BOOL allowPreview;
 
 @property (nonatomic, copy) void (^assetCellDidSetModelBlock)(TZAssetCell *cell, UIImageView *imageView, UIImageView *selectImageView, UILabel *indexLabel, UIView *bottomView, UILabel *timeLength, UIImageView *videoImgView);

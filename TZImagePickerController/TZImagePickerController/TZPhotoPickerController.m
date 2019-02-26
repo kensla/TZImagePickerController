@@ -512,6 +512,9 @@ static CGFloat itemMargin = 5;
     cell.allowPickingMultipleVideo = tzImagePickerVc.allowPickingMultipleVideo;
     cell.photoDefImage = tzImagePickerVc.photoDefImage;
     cell.photoSelImage = tzImagePickerVc.photoSelImage;
+    cell.snapchatSelImage = tzImagePickerVc.snapchatSelImage;
+    cell.snapchatDefImage = tzImagePickerVc.snapchatDefImage;
+    
     cell.assetCellDidSetModelBlock = tzImagePickerVc.assetCellDidSetModelBlock;
     cell.assetCellDidLayoutSubviewsBlock = tzImagePickerVc.assetCellDidLayoutSubviewsBlock;
     TZAssetModel *model;
@@ -525,6 +528,7 @@ static CGFloat itemMargin = 5;
     if (model.isSelected && tzImagePickerVc.showSelectedIndex) {
         cell.index = [tzImagePickerVc.selectedAssetIds indexOfObject:model.asset.localIdentifier] + 1;
     }
+    cell.showSnapchatBtn = tzImagePickerVc.showSnapchatBtn;
     cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
     cell.allowPreview = tzImagePickerVc.allowPreview;
     
@@ -538,6 +542,19 @@ static CGFloat itemMargin = 5;
     __weak typeof(cell) weakCell = cell;
     __weak typeof(self) weakSelf = self;
     __weak typeof(_numberImageView.layer) weakLayer = _numberImageView.layer;
+    
+    cell.didSelectSnapchatBlock = ^(BOOL isSelected) {
+        __strong typeof(weakCell) strongCell = weakCell;
+        
+        if (isSelected) {
+            strongCell.selectSnapchatButton.selected = NO;
+            model.isSelectedSnapchat = NO;
+        }else {
+            strongCell.selectSnapchatButton.selected = YES;
+            model.isSelectedSnapchat = YES;
+        }
+    };
+    
     cell.didSelectPhotoBlock = ^(BOOL isSelected) {
         __strong typeof(weakCell) strongCell = weakCell;
         __strong typeof(weakSelf) strongSelf = weakSelf;

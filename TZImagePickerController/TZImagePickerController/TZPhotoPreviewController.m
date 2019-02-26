@@ -30,7 +30,9 @@
     UIImageView *_numberImageView;
     UILabel *_numberLabel;
     UIButton *_originalPhotoButton;
+    UIButton *_selectSnapchatButton;
     UILabel *_originalPhotoLabel;
+    UILabel *_snapchatLabel;
     
     CGFloat _offsetItemCount;
     
@@ -154,7 +156,32 @@
         _originalPhotoLabel.textColor = [UIColor whiteColor];
         _originalPhotoLabel.backgroundColor = [UIColor clearColor];
         if (_isSelectOriginalPhoto) [self showPhotoBytes];
+        
+//        _originalPhotoButton.layer.borderWidth = 1;
+//        _originalPhotoButton.layer.borderColor = [UIColor redColor].CGColor;
     }
+    
+    // 阅后即焚 按钮
+    _selectSnapchatButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _selectSnapchatButton.imageEdgeInsets = UIEdgeInsetsMake(0, [TZCommonTools tz_isRightToLeftLayout] ? 10 : -10, 0, 0);
+    _selectSnapchatButton.backgroundColor = [UIColor clearColor];
+    [_selectSnapchatButton addTarget:self action:@selector(snapchatButtonClick) forControlEvents:UIControlEventTouchUpInside];
+    _selectSnapchatButton.titleLabel.font = [UIFont systemFontOfSize:13];
+    [_selectSnapchatButton setTitle:_tzImagePickerVc.snapchatBtnTitleStr forState:UIControlStateNormal];
+    [_selectSnapchatButton setTitle:_tzImagePickerVc.snapchatBtnTitleStr forState:UIControlStateSelected];
+    [_selectSnapchatButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+    [_selectSnapchatButton setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
+    [_selectSnapchatButton setImage:_tzImagePickerVc.photoPreviewOriginDefImage forState:UIControlStateNormal];
+    [_selectSnapchatButton setImage:_tzImagePickerVc.photoOriginSelImage forState:UIControlStateSelected];
+    
+    _snapchatLabel = [[UILabel alloc] init];
+    _snapchatLabel.textAlignment = NSTextAlignmentLeft;
+    _snapchatLabel.font = [UIFont systemFontOfSize:13];
+    _snapchatLabel.textColor = [UIColor whiteColor];
+    _snapchatLabel.backgroundColor = [UIColor clearColor];
+    
+//    _selectSnapchatButton.layer.borderWidth = 1;
+//    _selectSnapchatButton.layer.borderColor = [UIColor redColor].CGColor;
     
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
     _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
@@ -176,6 +203,8 @@
     _numberLabel.hidden = _tzImagePickerVc.selectedModels.count <= 0;
     _numberLabel.backgroundColor = [UIColor clearColor];
     
+    [_selectSnapchatButton addSubview:_snapchatLabel];
+    [_toolBar addSubview:_selectSnapchatButton];
     [_originalPhotoButton addSubview:_originalPhotoLabel];
     [_toolBar addSubview:_doneButton];
     [_toolBar addSubview:_originalPhotoButton];
@@ -274,6 +303,13 @@
         _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);
         _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
     }
+    
+    if (_tzImagePickerVc.showSnapchatBtn) {
+        CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
+        _selectSnapchatButton.frame = CGRectMake(_tzImagePickerVc.allowPickingOriginalPhoto? _originalPhotoButton.frame.origin.x + _originalPhotoButton.frame.size.width + 20 : 0, 0, fullImageWidth + 56, 44);
+        _snapchatLabel.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
+    }
+    
     [_doneButton sizeToFit];
     _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, _doneButton.tz_width, 44);
     _numberImageView.frame = CGRectMake(_doneButton.tz_left - 24 - 5, 10, 24, 24);
@@ -293,6 +329,15 @@
 }
 
 #pragma mark - Click Event
+// 阅后即焚
+- (void)selectSnapchat:(UIButton *)selectButton {
+    TZAssetModel *model = _models[self.currentIndex];
+    model.isSelectedSnapchat = selectButton.isSelected;
+    [self refreshNaviBarAndBottomBarState];
+    if (model.isSelectedSnapchat) {
+        [UIView showOscillatoryAnimationWithLayer:selectButton.imageView.layer type:TZOscillatoryAnimationToBigger];
+    }
+}
 
 - (void)select:(UIButton *)selectButton {
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
@@ -422,6 +467,14 @@
     }
 }
 
+- (void)snapchatButtonClick {
+    _selectSnapchatButton.selected = !_selectSnapchatButton.isSelected;
+    _isSelectSnasnapchatBtn = _selectSnapchatButton.isSelected;
+    _snapchatLabel.hidden = !_selectSnapchatButton.isSelected;
+    [self selectSnapchat:_selectSnapchatButton];
+}
+
+
 - (void)didTapPreviewCell {
     self.isHideNaviBar = !self.isHideNaviBar;
     _naviBar.hidden = self.isHideNaviBar;
@@ -519,6 +572,7 @@
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     TZAssetModel *model = _models[self.currentIndex];
     _selectButton.selected = model.isSelected;
+    _selectSnapchatButton.selected = model.isSelectedSnapchat;
     [self refreshSelectButtonImageViewContentMode];
     if (_selectButton.isSelected && _tzImagePickerVc.showSelectedIndex && _tzImagePickerVc.showSelectBtn) {
         NSString *index = [NSString stringWithFormat:@"%d", (int)([_tzImagePickerVc.selectedAssetIds indexOfObject:model.asset.localIdentifier] + 1)];

@@ -269,6 +269,11 @@
     imagePickerVc.allowTakePicture = self.showTakePhotoBtnSwitch.isOn; // 在内部显示拍照按钮
     imagePickerVc.allowTakeVideo = self.showTakeVideoBtnSwitch.isOn;   // 在内部显示拍视频按
     imagePickerVc.videoMaximumDuration = 10; // 视频最大拍摄时间
+    
+    imagePickerVc.snapchatDefImage = [UIImage tz_imageNamedFromMyBundle:@"photo_def_photoPickerVc"];
+    imagePickerVc.snapchatSelImage = [UIImage tz_imageNamedFromMyBundle:@"photo_sel_photoPickerVc"];
+    imagePickerVc.snapchatBtnTitleStr = @"阅后即焚";
+    
     [imagePickerVc setUiImagePickerControllerSettingBlock:^(UIImagePickerController *imagePickerController) {
         imagePickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
     }];
@@ -314,6 +319,7 @@
     /// 5. Single selection mode, valid when maxImagesCount = 1
     /// 5. 单选模式,maxImagesCount为1时才生效
     imagePickerVc.showSelectBtn = NO;
+    imagePickerVc.showSnapchatBtn = YES;
     imagePickerVc.allowCrop = self.allowCropSwitch.isOn;
     imagePickerVc.needCircleCrop = self.needCircleCropSwitch.isOn;
     // 设置竖屏下的裁剪尺寸
