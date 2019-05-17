@@ -41,6 +41,13 @@
 - (instancetype)initCropTypeWithAsset:(PHAsset *)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,PHAsset *asset))completion;
 
 #pragma mark -
+
+///用户拍摄完视频，直接 dismiss TZImagePickerController 默认是NO
+@property (nonatomic, assign) BOOL dismissImagePickerControllerAfterTakeVideoComplete;
+
+///用户拍摄完照片，直接 dismiss TZImagePickerController ,暂未使用
+@property (nonatomic, assign) BOOL dismissImagePickerControllerAfterTakePictureComplete;
+
 /// Default is 9 / 默认最大可选9张图片
 @property (nonatomic, assign) NSInteger maxImagesCount;
 

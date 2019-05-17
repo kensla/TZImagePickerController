@@ -209,11 +209,11 @@ static CGFloat itemMargin = 5;
 - (void)configBottomToolBar {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (!tzImagePickerVc.showSelectBtn) return;
-
+    
     _bottomToolBar = [[UIView alloc] initWithFrame:CGRectZero];
     CGFloat rgb = 253 / 255.0;
     _bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
-
+    
     _previewButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [_previewButton addTarget:self action:@selector(previewButtonClick) forControlEvents:UIControlEventTouchUpInside];
     _previewButton.titleLabel.font = [UIFont systemFontOfSize:16];
@@ -291,7 +291,7 @@ static CGFloat itemMargin = 5;
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-
+    
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     
     CGFloat top = 0;
@@ -327,7 +327,7 @@ static CGFloat itemMargin = 5;
     }
     _bottomToolBar.frame = CGRectMake(0, toolBarTop, self.view.tz_width, toolBarHeight);
     
-    CGFloat previewWidth = [tzImagePickerVc.previewBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width + 2;    
+    CGFloat previewWidth = [tzImagePickerVc.previewBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width + 2;
     if (!tzImagePickerVc.allowPreview) {
         previewWidth = 0.0;
     }
@@ -811,7 +811,12 @@ static CGFloat itemMargin = 5;
 #pragma mark - UIImagePickerControllerDelegate
 
 - (void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    
     [picker dismissViewControllerAnimated:YES completion:nil];
+    picker.delegate = nil;
+    _imagePickerVc.delegate = nil;
+    _imagePickerVc = nil;
+    
     NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
     if ([type isEqualToString:@"public.image"]) {
         TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
@@ -820,7 +825,7 @@ static CGFloat itemMargin = 5;
         if (photo) {
             [[TZImageManager manager] savePhotoWithImage:photo location:self.location completion:^(PHAsset *asset, NSError *error){
                 if (!error) {
-                    [self addPHAsset:asset];
+                    [self addPHAsset:asset takeVideo:NO];
                 }
             }];
             self.location = nil;
@@ -832,7 +837,7 @@ static CGFloat itemMargin = 5;
         if (videoUrl) {
             [[TZImageManager manager] saveVideoWithUrl:videoUrl location:self.location completion:^(PHAsset *asset, NSError *error) {
                 if (!error) {
-                    [self addPHAsset:asset];
+                    [self addPHAsset:asset takeVideo:YES];
                 }
             }];
             self.location = nil;
@@ -840,7 +845,23 @@ static CGFloat itemMargin = 5;
     }
 }
 
-- (void)addPHAsset:(PHAsset *)asset {
+- (void)dismissImagePickerControllerAfterTakeVideoComplete {
+    //    sleep(1);
+    TZAssetModel *model = [_models lastObject];
+    [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        if (!isDegraded && photo) {
+            TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+            if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
+                [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingVideo:photo sourceAssets:model.asset];
+            }
+            if (imagePickerVc.didFinishPickingVideoHandle) {
+                imagePickerVc.didFinishPickingVideoHandle(photo,model.asset);
+            }
+        }
+    }];
+}
+
+- (void)addPHAsset:(PHAsset *)asset takeVideo:(BOOL)takeVideo {
     TZAssetModel *assetModel = [[TZImageManager manager] createModelWithAsset:asset];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     [tzImagePickerVc hideProgressHUD];
@@ -881,6 +902,14 @@ static CGFloat itemMargin = 5;
     
     _shouldScrollToBottom = YES;
     [self scrollCollectionViewToBottom];
+    
+    if (tzImagePickerVc.dismissImagePickerControllerAfterTakeVideoComplete && takeVideo) {
+        
+        TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+        [imagePickerVc dismissViewControllerAnimated:YES completion:^{}];
+        sleep(1);
+        [self dismissImagePickerControllerAfterTakeVideoComplete];
+    }
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -889,6 +918,7 @@ static CGFloat itemMargin = 5;
 
 - (void)dealloc {
     // NSLog(@"%@ dealloc",NSStringFromClass(self.class));
+    _imagePickerVc = nil;
 }
 
 #pragma mark - Asset Caching
