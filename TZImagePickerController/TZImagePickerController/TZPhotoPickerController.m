@@ -462,6 +462,8 @@ static CGFloat itemMargin = 5;
             if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
                 [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingVideo:[photos firstObject] sourceAssets:[assets firstObject]];
             }
+            
+            
             if (tzImagePickerVc.didFinishPickingVideoHandle) {
                 tzImagePickerVc.didFinishPickingVideoHandle([photos firstObject], [assets firstObject]);
             }
@@ -854,6 +856,11 @@ static CGFloat itemMargin = 5;
             if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
                 [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingVideo:photo sourceAssets:model.asset];
             }
+            
+            if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:selectedAssets:)]) {
+                [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingVideo:photo sourceAssets:model.asset selectedAssets:model];
+            }
+            
             if (imagePickerVc.didFinishPickingVideoHandle) {
                 imagePickerVc.didFinishPickingVideoHandle(photo,model.asset);
             }
